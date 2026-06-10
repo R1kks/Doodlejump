@@ -1,7 +1,6 @@
 #include "game.h"
 #include <stdlib.h>
 
-/*функция создания платформы*/
 static void SpawnPlatform(GameState* state, float x, float y, int type) {
     for (int i = 0; i < MAX_PLATFORMS; i++) {
         if (!state->platforms[i].active) {
@@ -15,9 +14,7 @@ static void SpawnPlatform(GameState* state, float x, float y, int type) {
         }
     }
 }
-/*функция создания платформы*/
 
-/*функция создания врага на платформе*/
 static void SpawnEnemyOnPlatform(GameState* state, int platformIdx) {
     if (platformIdx < 0 || platformIdx >= MAX_PLATFORMS) return;
     for (int i = 0; i < MAX_ENEMIES; i++) {
@@ -32,9 +29,7 @@ static void SpawnEnemyOnPlatform(GameState* state, int platformIdx) {
         }
     }
 }
-/*функция создания врага на платформе*/
 
-/*функция создания пули*/
 static void SpawnBullet(GameState* state) {
     if (state->shootCooldownTimer > 0) return;
     for (int i = 0; i < MAX_BULLETS; i++) {
@@ -50,9 +45,7 @@ static void SpawnBullet(GameState* state) {
         }
     }
 }
-/*функция создания пули*/
 
-/*функция обновления врагов*/
 static void UpdateEnemies(GameState* state) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!state->enemies[i].active) continue;
@@ -62,9 +55,7 @@ static void UpdateEnemies(GameState* state) {
         }
     }
 }
-/*функция обновления врагов*/
 
-/*функция обновления пули*/
 static void UpdateBullets(GameState* state) {
     for (int i = 0; i < MAX_BULLETS; i++) {
         if (state->bullets[i].active) {
@@ -78,11 +69,8 @@ static void UpdateBullets(GameState* state) {
         state->shootCooldownTimer--;
     }
 }
-/*функция обновления пули*/
 
-/*функция проверки коллизии*/
 static void CheckCollisions(GameState* state) {
-    /*проверка попадания пули во врага*/
     for (int b = 0; b < MAX_BULLETS; b++) {
         if (!state->bullets[b].active) continue;
         for (int e = 0; e < MAX_ENEMIES; e++) {
@@ -100,9 +88,7 @@ static void CheckCollisions(GameState* state) {
             }
         }
     }
-    /*проверка попадания пули во врага*/
 
-    /*проверка попадания игрока на врага*/
     for (int e = 0; e < MAX_ENEMIES; e++) {
         if (!state->enemies[e].active) continue;
         if (state->player.x < state->enemies[e].x + state->enemies[e].w &&
@@ -117,9 +103,7 @@ static void CheckCollisions(GameState* state) {
             break;
         }
     }
-    /*проверка попадания игрока во врага*/
 }
-/*проверка коллизии*/
 
 void Game_Init(GameState* state) {
     state->player.x = (float)(WINDOW_WIDTH / 2 - PLAYER_SIZE / 2);
