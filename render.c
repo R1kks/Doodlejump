@@ -1,4 +1,3 @@
-// render.c
 #include "render.h"
 #include <stdio.h>
 
