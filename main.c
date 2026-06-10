@@ -4,7 +4,6 @@
 #include "game.h"
 #include "render.h"
 
-/* Контекст приложения для избежания глобальных переменных */
 typedef struct {
     GameState gameState;
     RenderContext renderCtx;
@@ -13,12 +12,10 @@ typedef struct {
 } AppContext;
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    /* Получаем указатель на контекст приложения, сохраненный при создании окна */
     AppContext* app = (AppContext*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     switch (msg) {
     case WM_CREATE: {
-        /* Выделяем память под контекст и сохраняем указатель в окне */
         app = (AppContext*)malloc(sizeof(AppContext));
         if (!app) return -1;
 
@@ -33,7 +30,6 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         srand((unsigned int)time(NULL));
         Game_Init(&app->gameState);
 
-        /* Сохраняем указатель для последующих сообщений */
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)app);
         return 0;
     }
@@ -115,12 +111,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow) {
     ShowWindow(hwnd, nShow);
     UpdateWindow(hwnd);
 
-    /* --- ИГРОВОЙ ЦИКЛ С ФИКСИРОВАННЫМ ШАГОМ (Требование ТЗ) --- */
     LARGE_INTEGER freq, lastTime, currentTime;
     QueryPerformanceFrequency(&freq);
     QueryPerformanceCounter(&lastTime);
 
-    const double FIXED_DT = 1.0 / 60.0; // 60 FPS
+    const double FIXED_DT = 1.0 / 60.0;
     double accumulator = 0.0;
     MSG msg = { 0 };
 
@@ -134,25 +129,21 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow) {
             double deltaTime = (double)(currentTime.QuadPart - lastTime.QuadPart) / (double)freq.QuadPart;
             lastTime = currentTime;
 
-            /* Защита от "спирали смерти" при лагах */
             if (deltaTime > 0.05) deltaTime = 0.05;
 
             accumulator += deltaTime;
 
-            /* Обновляем логику фиксированными шагами для стабильной физики */
             while (accumulator >= FIXED_DT) {
                 AppContext* app = (AppContext*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
                 if (app) {
                     Game_HandleInput(&app->gameState, &app->input);
                     Game_Update(&app->gameState);
 
-                    /* Сбрасываем триггер выстрела после одного кадра обработки */
                     app->input.shoot = 0;
                 }
                 accumulator -= FIXED_DT;
             }
 
-            /* Запрашиваем перерисовку только если состояние изменилось */
             InvalidateRect(hwnd, NULL, FALSE);
         }
     }
@@ -160,7 +151,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow) {
     return (int)msg.wParam;
 }
 
-/* Точка входа для совместимости с некоторыми компиляторами (MinGW) */
 int main(int argc, char* argv[]) {
     return WinMain(GetModuleHandleA(NULL), NULL, GetCommandLineA(), SW_SHOW);
 }
